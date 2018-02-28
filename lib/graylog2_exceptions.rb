@@ -1,9 +1,16 @@
 require 'rubygems'
 require 'gelf'
+require 'raven/base'
 require 'socket'
 require 'logger'
 require 'concurrent'
 require_relative './local_logger'
+
+
+class FiverrException < Exception
+  attr_writer :original_exception
+end
+
 
 class Graylog2Exceptions
   attr_reader :args
@@ -26,13 +33,20 @@ class Graylog2Exceptions
       short_message: nil,
       full_message: nil,
       file: nil,
-      line: nil
+      line: nil,
+      sentry_key: "key",
+      sentry_secret: "secret",
+      sentry_project: "project"
     }
 
     @args = standard_args.merge(args).reject {|k, v| v.nil? }
     @extra_args = @args.reject {|k, v| standard_args.has_key?(k) }
     @backtrace_cleaner = get_backtrace_cleaner
     @app = app
+
+    Raven.configure do |config|
+      config.dsn = 'https://#{@args.sentry_key}:#{@args.sentry_secret}@sentry.io/#{@args.sentry_project}'
+    end
 
   end
 
@@ -118,6 +132,7 @@ class Graylog2Exceptions
         rescue StandardError => e
           LocalLogger.logger.error "Graylog2Exceptions#send_to_graylog2 Could not send message: #{e.message}, backtrace #{e.backtrace}"
         end
+        send_to_sentry(err) if err.original_exception
       end
 
     rescue => e
@@ -155,6 +170,10 @@ class Graylog2Exceptions
       end
     end
     ret
+  end
+  
+  def send_to_sentry(err)
+    Raven.capture_exception(err.original_exception)
   end
 
   def clean(backtrace)
@@ -198,8 +217,9 @@ class Graylog2Exceptions
 
   def format_exception(klass, message, exception)
     data, backtrace = exception_attributes(exception)
-    formatted_exception = Exception.new("Class: #{klass}\nMessage: #{message}.\n#{data}")
+    formatted_exception = FiverrException.new("Class: #{klass}\nMessage: #{message}.\n#{data}")
     formatted_exception.set_backtrace(backtrace)
+    formatted_exception.original_exception = exception
     formatted_exception
   end
 
