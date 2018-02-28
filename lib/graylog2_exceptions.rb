@@ -45,7 +45,7 @@ class Graylog2Exceptions
     @app = app
 
     Raven.configure do |config|
-      config.dsn = "https://#{@args.sentry_key}:#{@args.sentry_secret}@sentry.io/#{@args.sentry_project}"
+        config.dsn = "https://#{@args[:sentry_key]}:#{@args[:sentry_secret]}@sentry.io/#{@args[:sentry_project]}"
     end
 
   end
