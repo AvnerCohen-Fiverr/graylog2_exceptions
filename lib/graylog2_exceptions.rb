@@ -133,7 +133,7 @@ class Graylog2Exceptions
         rescue StandardError => e
           LocalLogger.logger.error "Graylog2Exceptions#send_to_graylog2 Could not send message: #{e.message}, backtrace #{e.backtrace}"
         end
-        send_to_sentry(err) if err.original_exception
+        send_to_sentry(err) if err.original_exception || err.is_a? Exception
       end
 
     rescue => e
