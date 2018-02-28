@@ -34,18 +34,19 @@ class Graylog2Exceptions
       full_message: nil,
       file: nil,
       line: nil,
-      sentry_key: "key",
-      sentry_secret: "secret",
-      sentry_project: "project"
+      sentry_key: 'key',
+      sentry_secret: 'secret',
+      sentry_project: 'project'
     }
 
     @args = standard_args.merge(args).reject {|k, v| v.nil? }
     @extra_args = @args.reject {|k, v| standard_args.has_key?(k) }
     @backtrace_cleaner = get_backtrace_cleaner
     @app = app
+    @sentry_url = "https://#{@args[:sentry_key]}:#{@args[:sentry_secret]}@sentry.io/#{@args[:sentry_project]}"
 
     Raven.configure do |config|
-        config.dsn = "https://#{@args[:sentry_key]}:#{@args[:sentry_secret]}@sentry.io/#{@args[:sentry_project]}"
+        config.dsn = @sentry_url
     end
 
   end
