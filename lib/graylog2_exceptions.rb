@@ -8,7 +8,7 @@ require_relative './local_logger'
 
 
 class FiverrException < Exception
-  attr_writer :original_exception
+  attr_accessor :original_exception
 end
 
 
@@ -174,14 +174,8 @@ class Graylog2Exceptions
   end
   
   def send_to_sentry(err)
-    e = if (err.original_exception)
-          err.original_exception
-        elsif ((err.is_a?(Exception) && !err.is_a?(FiverrException)))
-          err
-        else
-          nil
-        end
-    Raven.capture_exception(e) if e
+    Raven.capture_exception(err) unless err.is_a?(FiverrException)
+    Raven.capture_exception(err.original_exception) if err.original_exception
   end
 
   def clean(backtrace)
