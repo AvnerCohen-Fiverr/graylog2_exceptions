@@ -174,10 +174,10 @@ class Graylog2Exceptions
   end
   
   def send_to_sentry(err)
-    e = if (err.is_a? Exception)
-          err
-        elsif (err.original_exception)
+    e = if (err.original_exception)
           err.original_exception
+        elsif ((err.is_a?(Exception) && !err.is_a?(FiverrException)))
+          err
         else
           nil
         end
