@@ -133,7 +133,7 @@ class Graylog2Exceptions
         rescue StandardError => e
           LocalLogger.logger.error "Graylog2Exceptions#send_to_graylog2 Could not send message: #{e.message}, backtrace #{e.backtrace}"
         end
-        send_to_sentry(err) if err.original_exception || err.is_a? Exception
+        send_to_sentry(err)      
       end
 
     rescue => e
@@ -174,7 +174,14 @@ class Graylog2Exceptions
   end
   
   def send_to_sentry(err)
-    Raven.capture_exception(err.original_exception)
+    e = if (err.is_a? Exception)
+          err
+        elsif (err.original_exception)
+          err.original_exception
+        else
+          nil
+        end
+    Raven.capture_exception(e) if e
   end
 
   def clean(backtrace)
