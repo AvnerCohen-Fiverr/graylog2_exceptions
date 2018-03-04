@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{friendlyfashion-graylog2_exceptions}
-  s.version = "1.3.2"
+  s.version = "1.8.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors       = ["Laurynas Butkus", "Tomas Didziokas", "Justas Janauskas", "Edvinas Bartkus"]
@@ -26,23 +26,13 @@ Gem::Specification.new do |s|
   ]
   s.homepage = %q{http://www.graylog2.org/}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Graylog2 exception notifier}
   s.test_files = [
     "test/helper.rb",
     "test/test_graylog2_exceptions.rb"
   ]
 
-  if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
-    s.specification_version = 3
-
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<gelf>, ["~> 1.3"])
-    else
-      s.add_dependency(%q<gelf>, ["~> 1.3"])
-    end
-  else
-    s.add_dependency(%q<gelf>, ["~> 1.3"])
-  end
+  s.add_runtime_dependency('gelf')
+  s.add_dependency('concurrent-ruby', '~> 1.0.0')
+  s.add_dependency('concurrent-ruby-ext', '~> 1.0.0')
 end
